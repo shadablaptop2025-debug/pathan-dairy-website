@@ -229,7 +229,7 @@
       <!-- LOGIN -->
       <div id="loginForm">
         <label>Email</label>
-        <input type="email" id="loginemail" placeholder="Your email address" maxlength="10"/>
+        <input type="email" id="loginemail" placeholder="Your email address" maxlength="100"/>
         <label>Password</label>
         <input type="password" id="loginPass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/>
         <button class="btn-auth" onclick="doLogin()">Login →</button>
@@ -239,7 +239,7 @@
         <label>Your Name</label>
         <input type="text" id="signupName" placeholder="e.g., Rahul Sharma"/>
         <label>Email</label>
-        <input type="email" id="signupEmail" placeholder="Your email address" maxlength="10"/>
+        <input type="email" id="signupEmail" placeholder="Your email address" maxlength="100"/>
         <label>Password</label>
         <input type="password" id="signupPass" placeholder="Create a password"/>
         <button class="btn-auth" onclick="doSignup()">Create Account →</button>
@@ -280,7 +280,7 @@
       <label>Tumhara Naam</label>
       <input type="text" id="custName" placeholder="e.g., Rahul Sharma"/>
       <label>Email</label>
-      <input type="email" id="custPhone" placeholder="Your email address" maxlength="10"/>
+      <input type="email" id="custPhone" placeholder="Your email address" maxlength="100"/>
       <label>Delivery Address</label>
       <div style="display:flex;gap:8px;align-items:flex-start;margin-top:4px;">
         <input type="text" id="custAddress" placeholder="Ghar no., gali, area..." style="margin-top:0;"/>
@@ -360,7 +360,7 @@
         <label>Naam</label>
         <input type="text" id="editName" placeholder="Apna naam daalo"/>
         <label>Phone</label>
-        <input type="email" id="editPhone" placeholder="Email" maxlength="10"/>
+        <input type="email" id="editPhone" placeholder="Email" maxlength="100"/>
         <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
           <button class="btn-save-profile" onclick="saveProfile()">💾 Save Karo</button>
           <button class="btn-logout-profile" onclick="doLogout()">🚪 Logout</button>
@@ -662,7 +662,7 @@ function placeOrder(){
   const address=document.getElementById('custAddress').value.trim();
   const ids=Object.keys(cart);
   if(!name){showOrderMsg('Naam daalo.','error');return;}
-  if(!phone.match(/^\d{10}$/)){showOrderMsg('Valid 10-digit Email daalo.','error');return;}
+  if(!phone.match(/^\d{10}$/)){showOrderMsg('Valid Email daalo ','error');return;}
   if(!address){showOrderMsg('Address daalo.','error');return;}
   if(!ids.length){showOrderMsg('Koi product add karo.','error');return;}
 
