@@ -662,7 +662,7 @@ function placeOrder(){
   const address=document.getElementById('custAddress').value.trim();
   const ids=Object.keys(cart);
   if(!name){showOrderMsg('Naam daalo.','error');return;}
-  if(!phone.match(/^\d{10}$/)){showOrderMsg('Valid 10-digit Email daalo.','error');return;}
+  if(!phone.match(/^\d{10}$/)){showOrderMsg('Valid Email daalo.','error');return;}
   if(!address){showOrderMsg('Address daalo.','error');return;}
   if(!ids.length){showOrderMsg('Koi product add karo.','error');return;}
 
