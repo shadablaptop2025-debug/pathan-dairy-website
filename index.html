@@ -229,7 +229,7 @@
       <!-- LOGIN -->
       <div id="loginForm">
         <label>Email</label>
-        <input type="email" id="loginemail" placeholder="Your email address" maxlength="100"/>
+        <input type="email" id="loginemail" placeholder="Your email address" maxlength="10"/>
         <label>Password</label>
         <input type="password" id="loginPass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/>
         <button class="btn-auth" onclick="doLogin()">Login →</button>
@@ -239,7 +239,7 @@
         <label>Your Name</label>
         <input type="text" id="signupName" placeholder="e.g., Rahul Sharma"/>
         <label>Email</label>
-        <input type="email" id="signupEmail" placeholder="Your email address" maxlength="100"/>
+        <input type="email" id="signupEmail" placeholder="Your email address" maxlength="10"/>
         <label>Password</label>
         <input type="password" id="signupPass" placeholder="Create a password"/>
         <button class="btn-auth" onclick="doSignup()">Create Account →</button>
@@ -280,7 +280,7 @@
       <label>Tumhara Naam</label>
       <input type="text" id="custName" placeholder="e.g., Rahul Sharma"/>
       <label>Email</label>
-      <input type="email" id="custPhone" placeholder="Your email address" maxlength="100"/>
+      <input type="email" id="custPhone" placeholder="Your email address" maxlength="10"/>
       <label>Delivery Address</label>
       <div style="display:flex;gap:8px;align-items:flex-start;margin-top:4px;">
         <input type="text" id="custAddress" placeholder="Ghar no., gali, area..." style="margin-top:0;"/>
@@ -360,7 +360,7 @@
         <label>Naam</label>
         <input type="text" id="editName" placeholder="Apna naam daalo"/>
         <label>Phone</label>
-        <input type="email" id="editPhone" placeholder="Email" maxlength="100"/>
+        <input type="email" id="editPhone" placeholder="Email" maxlength="10"/>
         <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
           <button class="btn-save-profile" onclick="saveProfile()">💾 Save Karo</button>
           <button class="btn-logout-profile" onclick="doLogout()">🚪 Logout</button>
@@ -513,10 +513,10 @@ function enterStore(){
   if(currentUser){
     // pre-fill form
     document.getElementById('custName').value=currentUser.name||'';
-    document.getElementById('custPhone').value=currentUser.phone||'';
+    document.getElementById('custPhone').value=currentuser.email||'';
     // load default address
     const users=getUsers();
-    const u=users[currentUser.phone];
+    const u=users[currentuser.email];
     if(u&&u.addresses&&u.addresses.length){
       const def=u.addresses.find(a=>a.isDefault)||u.addresses[0];
       if(def)document.getElementById('custAddress').value=def.text;
@@ -543,11 +543,11 @@ function showCustomerPage(){
 function showProfile(){
   if(!currentUser){showPage('authPage');return;}
   const users=getUsers();
-  const u=users[currentUser.phone]||{};
+  const u=users[currentuser.email]||{};
   document.getElementById('profileNameDisplay').textContent=currentUser.name;
-  document.getElementById('profilePhoneDisplay').textContent='📱 '+currentUser.phone;
+  document.getElementById('profilePhoneDisplay').textContent='📱 '+currentuser.email;
   document.getElementById('editName').value=currentUser.name;
-  document.getElementById('editPhone').value=currentUser.phone;
+  document.getElementById('editPhone').value=currentuser.email;
   renderOrderHistory();
   renderSavedAddresses();
   renderFavourites();
@@ -567,7 +567,7 @@ function buildProductGrid(){
   if(grid.children.length>0)return; // already built
   PRODUCTS.forEach(p=>{
     const users=getUsers();
-    const favs=currentUser&&users[currentUser.phone]?users[currentUser.phone].favourites||[]:[];
+    const favs=currentUser&&users[currentuser.email]?users[currentuser.email].favourites||[]:[];
     const isFav=favs.includes(p.id);
     const card=document.createElement('div');
     card.className='product-card';
@@ -662,7 +662,7 @@ function placeOrder(){
   const address=document.getElementById('custAddress').value.trim();
   const ids=Object.keys(cart);
   if(!name){showOrderMsg('Naam daalo.','error');return;}
-  if(!phone.match(/^\d{10}$/)){showOrderMsg('Valid Email daalo.','error');return;}
+  if(!phone.match(/^\d{10}$/)){showOrderMsg('Valid 10-digit Email daalo.','error');return;}
   if(!address){showOrderMsg('Address daalo.','error');return;}
   if(!ids.length){showOrderMsg('Koi product add karo.','error');return;}
 
@@ -675,7 +675,7 @@ function placeOrder(){
     payment:selectedPay==='online'?'Online (UPI)':'Pay on Delivery',
     status:'pending',
     time:new Date().toLocaleString('en-IN'),
-    userPhone:currentUser?currentUser.phone:null
+    userPhone:currentUser?currentuser.email:null
   };
 
   // Save to global orders
@@ -686,9 +686,9 @@ function placeOrder(){
   // Save to user's order history
   if(currentUser){
     const users=getUsers();
-    if(users[currentUser.phone]){
-      if(!users[currentUser.phone].orders)users[currentUser.phone].orders=[];
-      users[currentUser.phone].orders.unshift(order);
+    if(users[currentuser.email]){
+      if(!users[currentuser.email].orders)users[currentuser.email].orders=[];
+      users[currentuser.email].orders.unshift(order);
       saveUsers(users);
     }
   }
@@ -714,7 +714,7 @@ function toggleFav(id,e){
   e.stopPropagation();
   if(!currentUser){alert('Favourites ke liye login karo!');return;}
   const users=getUsers();
-  const u=users[currentUser.phone];
+  const u=users[currentuser.email];
   if(!u.favourites)u.favourites=[];
   const idx=u.favourites.indexOf(id);
   if(idx>=0)u.favourites.splice(idx,1);
@@ -728,7 +728,7 @@ function toggleFav(id,e){
 
 function renderFavourites(){
   const users=getUsers();
-  const u=users[currentUser.phone]||{};
+  const u=users[currentuser.email]||{};
   const favs=u.favourites||[];
   const list=document.getElementById('favList');
   if(!favs.length){list.innerHTML='<div class="no-data"><div>🤍</div><p>Koi favourite nahi hai abhi.<br>Products pe ❤️ dabao!</p></div>';return;}
@@ -753,7 +753,7 @@ function addFavToCart(id){
 function useSavedAddr(){
   if(!currentUser){alert('Address save karne ke liye login karo!');return;}
   const users=getUsers();
-  const u=users[currentUser.phone]||{};
+  const u=users[currentuser.email]||{};
   const addrs=u.addresses||[];
   if(!addrs.length){alert('Koi saved address nahi hai. Profile mein jao aur add karo.');return;}
   const def=addrs.find(a=>a.isDefault)||addrs[0];
@@ -766,9 +766,9 @@ function saveAddress(){
   const isDefault=document.getElementById('defaultAddrCheck').checked;
   if(!text){alert('Address daalo.');return;}
   const users=getUsers();
-  if(!users[currentUser.phone].addresses)users[currentUser.phone].addresses=[];
-  if(isDefault)users[currentUser.phone].addresses.forEach(a=>a.isDefault=false);
-  users[currentUser.phone].addresses.push({text,isDefault});
+  if(!users[currentuser.email].addresses)users[currentuser.email].addresses=[];
+  if(isDefault)users[currentuser.email].addresses.forEach(a=>a.isDefault=false);
+  users[currentuser.email].addresses.push({text,isDefault});
   saveUsers(users);
   document.getElementById('newAddrInput').value='';
   document.getElementById('defaultAddrCheck').checked=false;
@@ -777,14 +777,14 @@ function saveAddress(){
 
 function deleteAddress(idx){
   const users=getUsers();
-  users[currentUser.phone].addresses.splice(idx,1);
+  users[currentuser.email].addresses.splice(idx,1);
   saveUsers(users);
   renderSavedAddresses();
 }
 
 function renderSavedAddresses(){
   const users=getUsers();
-  const u=users[currentUser.phone]||{};
+  const u=users[currentuser.email]||{};
   const addrs=u.addresses||[];
   const list=document.getElementById('savedAddrList');
   if(!addrs.length){list.innerHTML='<div class="no-data"><div>📍</div><p>Koi saved address nahi hai.</p></div>';return;}
@@ -799,7 +799,7 @@ function renderSavedAddresses(){
 /* ══════════ ORDER HISTORY ══════════ */
 function renderOrderHistory(){
   const users=getUsers();
-  const u=users[currentUser.phone]||{};
+  const u=users[currentuser.email]||{};
   const orders=u.orders||[];
   const list=document.getElementById('orderHistoryList');
   if(!orders.length){list.innerHTML='<div class="no-data"><div>📦</div><p>Koi order nahi hua abhi.</p></div>';return;}
@@ -823,7 +823,7 @@ function renderOrderHistory(){
 
 function reorder(orderId){
   const users=getUsers();
-  const u=users[currentUser.phone]||{};
+  const u=users[currentuser.email]||{};
   const orders=u.orders||[];
   const o=orders.find(x=>x.id===orderId);
   if(!o)return;
@@ -848,7 +848,7 @@ function saveProfile(){
   const name=document.getElementById('editName').value.trim();
   if(!name){showProfileMsg('Naam daalo.','error');return;}
   const users=getUsers();
-  users[currentUser.phone].name=name;
+  users[currentuser.email].name=name;
   saveUsers(users);
   currentUser.name=name;
   localStorage.setItem('pdCurrentUser',JSON.stringify(currentUser));
