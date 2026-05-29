@@ -233,6 +233,7 @@
         <label>Password</label>
         <input type="password" id="loginPass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/>
         <button class="btn-auth" onclick="doLogin()">Login →</button>
+        <p style="text-align:center;margin-top:10px;"><a href="#" onclick="forgotPassword()" style="color:#1a3a6b;font-size:0.9rem;">Forgot Password?</a></p>
       </div>
       <!-- SIGNUP -->
       <div id="signupForm" style="display:none;">
@@ -461,6 +462,20 @@ function doLogin(){
       })
       .catch((e) => {
         showAuthErr('Email ya password galat hai.');
+      });
+  });
+}
+function forgotPassword(){
+  const email = document.getElementById('loginemail').value.trim();
+  if(!email){showAuthErr('Pehle email daalo.');return;}
+  import('https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js').then(({getAuth, sendPasswordResetEmail}) => {
+    const auth = getAuth();
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        showAuthErr('Password reset email bhej diya! Inbox check karo.');
+      })
+      .catch(() => {
+        showAuthErr('Email nahi mila. Sahi email daalo.');
       });
   });
 }
