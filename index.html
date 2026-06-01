@@ -312,37 +312,6 @@
   </div>
 </div>
 
-      <h2>Admin Login</h2>
-      <p>Pathan Dairy – Order Dashboard</p>
-      <input type="password" id="adminPass" placeholder="Password daalo" onkeydown="if(event.key==='Enter')adminLogin()"/>
-      <button class="btn-login" onclick="adminLogin()" style="margin-top:4px;">Login →</button>
-      <div class="login-err" id="loginErr">❌ Wrong password.</div>
-      <div style="margin-top:16px;"><a href="#" onclick="showPage('customerPage');return false;" style="color:var(--mid);font-size:.83rem;">← Store pe wapas jao</a></div>
-    </div>
-  </div>
-  <div id="dashboardBox" style="display:none;">
-    <div class="admin-header">
-      <div><h2>📋 Order Dashboard</h2><p>Pathan Dairy – Saare orders</p></div>
-      <button class="btn-logout" onclick="showPage('customerPage')">← Wapas Store</button>
-    </div>
-    <div class="admin-main">
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total Orders</div></div>
-        <div class="stat-card"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
-        <div class="stat-card"><div class="stat-num" id="statDelivered">0</div><div class="stat-label">Delivered</div></div>
-        <div class="stat-card"><div class="stat-num" id="statRevenue">₹0</div><div class="stat-label">Revenue</div></div>
-      </div>
-      <div class="filter-tabs">
-        <button class="tab active" onclick="filterOrders('all',this)">All</button>
-        <button class="tab" onclick="filterOrders('pending',this)">⏳ Pending</button>
-        <button class="tab" onclick="filterOrders('delivered',this)">✅ Delivered</button>
-        <button class="tab" onclick="filterOrders('cancelled',this)">❌ Cancelled</button>
-      </div>
-      <div id="ordersList"></div>
-    </div>
-  </div>
-</div>
-
 <!-- Firebase Compat CDN -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
