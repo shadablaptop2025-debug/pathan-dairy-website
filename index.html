@@ -104,6 +104,9 @@
     .btn-auth{width:100%;background:var(--blue);color:white;border:none;padding:13px;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;margin-top:8px;}
     .btn-auth:hover{background:var(--blue2);}
     .auth-err{color:#c0392b;font-size:.83rem;margin-top:10px;font-weight:600;display:none;text-align:center;}
+    .pass-wrap{position:relative;}
+    .pass-wrap input{padding-right:44px!important;}
+    .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0;line-height:1;}
     .auth-skip{text-align:center;margin-top:14px;}
     .auth-skip a{color:var(--mid);font-size:.83rem;cursor:pointer;text-decoration:underline;}
     .forgot-success{background:#d4edda;color:#155724;border:1px solid #b8dfc2;padding:10px;border-radius:8px;font-size:.85rem;font-weight:700;margin-top:10px;display:none;}
@@ -168,7 +171,10 @@
         <label>Email</label>
         <input type="email" id="loginEmail" placeholder="apka@email.com"/>
         <label>Password</label>
-        <input type="password" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <div class="pass-wrap">
+          <input type="password" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/>
+          <button class="eye-btn" type="button" onclick="togglePass('loginPass',this)">👁️</button>
+        </div>
         <button class="btn-auth" onclick="doLogin()">Login →</button>
       </div>
       <div id="signupForm" style="display:none;">
@@ -177,7 +183,15 @@
         <label>Email</label>
         <input type="email" id="signupEmail" placeholder="apka@email.com"/>
         <label>Password</label>
-        <input type="password" id="signupPass" placeholder="Password (min 6 characters)"/>
+        <div class="pass-wrap">
+          <input type="password" id="signupPass" placeholder="Password (min 6 characters)"/>
+          <button class="eye-btn" type="button" onclick="togglePass('signupPass',this)">👁️</button>
+        </div>
+        <label>Confirm Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="signupConfirmPass" placeholder="Password dobara daalo"/>
+          <button class="eye-btn" type="button" onclick="togglePass('signupConfirmPass',this)">👁️</button>
+        </div>
         <button class="btn-auth" onclick="doSignup()">Account Banao →</button>
       </div>
       <div class="auth-err" id="authErr"></div>
@@ -250,8 +264,8 @@
     <div class="contact-card">
       <h3>📞 Contact Pathan Dairy</h3>
       <div class="contact-links">
-        <a class="contact-link" href="tel:9096373826">📱 9096373826</a>
         <a class="contact-link" href="tel:9657774763">📱 9657774763</a>
+        <a class="contact-link" href="tel:8766039514">📱 8766039514</a>
       </div>
     </div>
   </main>
@@ -335,16 +349,16 @@ const db   = firebase.firestore();
 const PRODUCTS = [
   {id:'milk',      name:'Milk',      emoji:'🥛',type:'liquid',pricePerL:70,   units:['ml','L'],   defaultQty:1,  defaultUnit:'L',   label:'₹70/L'},
   {id:'dahi',      name:'Dahi',      emoji:'🫙',type:'liquid',pricePerL:80,   units:['ml','L'],   defaultQty:1,  defaultUnit:'L',   label:'₹80/L'},
-  {id:'ghee',      name:'Ghee',      emoji:'🍶',type:'liquid',pricePerL:900,  units:['ml','L'],   defaultQty:1,  defaultUnit:'L',   label:'₹900/L'},
-  {id:'paneer',    name:'Paneer',    emoji:'🧀',type:'solid', pricePer500g:80,units:['g','kg'],   defaultQty:500,defaultUnit:'g',   label:'₹80/500g'},
-  {id:'buttermilk',name:'Buttermilk',emoji:'🥤',type:'liquid',pricePerL:20,   units:['ml','L'],   defaultQty:1,  defaultUnit:'L',   label:'₹20/L'},
+  {id:'ghee',      name:'Ghee',      emoji:'🍶',type:'liquid',pricePerL:1000, units:['ml','L'],   defaultQty:1,  defaultUnit:'L',   label:'₹1000/L'},
+  {id:'paneer',    name:'Paneer',    emoji:'🧀',type:'solid', pricePer500g:50,units:['g','kg'],   defaultQty:250,defaultUnit:'g',   label:'₹100/250g'},
+  {id:'buttermilk',name:'Buttermilk',emoji:'🥤',type:'liquid',pricePerL:30,   units:['ml','L'],   defaultQty:1,  defaultUnit:'L',   label:'₹30/L'},
   {id:'lassi',     name:'Lassi',     emoji:'🥛',type:'glass', priceEach:25,   units:['glass'],    defaultQty:1,  defaultUnit:'glass',label:'₹25/glass'},
 ];
 
 function calcPrice(p,qty,unit){
   qty=parseFloat(qty)||0;
   if(p.type==='liquid') return Math.round((unit==='ml'?qty/1000:qty)*p.pricePerL);
-  if(p.type==='solid')  return Math.round(((unit==='g'?qty:qty*1000)/500)*p.pricePer500g);
+  if(p.type==='solid')  return Math.round(((unit==='g'?qty:qty*1000)/250)*p.pricePer250g);
   return Math.round(qty*p.priceEach);
 }
 
@@ -362,6 +376,18 @@ function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 
+}
+
+/* ══ TOGGLE PASSWORD ══ */
+function togglePass(inputId, btn){
+  var input = document.getElementById(inputId);
+  if(input.type === 'password'){
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
 }
 
 /* ══ FORGOT PASSWORD ══ */
@@ -428,6 +454,8 @@ function doSignup(){
   if(!name) {showAuthErr('Naam daalo.');return;}
   if(!email){showAuthErr('Email daalo.');return;}
   if(pass.length<6){showAuthErr('Password kam se kam 6 characters ka hona chahiye.');return;}
+  var confirmPass = document.getElementById('signupConfirmPass').value;
+  if(pass !== confirmPass){showAuthErr('Dono passwords match nahi kar rahe!');return;}
   showLoading('Account ban raha hai...');
   auth.createUserWithEmailAndPassword(email,pass)
     .then(uc => uc.user.updateProfile({displayName:name}))
