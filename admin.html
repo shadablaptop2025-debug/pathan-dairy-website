@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Pathan Dairy – Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#0d1117; --card:#161b22; --card2:#1c2128;
+      --blue:#1a3a6b; --sky:#4a90d9; --pale:#e8f0fb;
+      --green:#2ea043; --red:#da3633; --yellow:#e3b341;
+      --text:#e6edf3; --mid:#8b949e; --border:#30363d;
+      --shadow:0 8px 32px rgba(0,0,0,.4);
+      --r:12px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+    /* LOADING */
+    #loadingOverlay{position:fixed;inset:0;background:rgba(13,17,23,.9);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;}
+    #loadingOverlay.show{display:flex;}
+    .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--sky);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-text{color:var(--sky);font-weight:700;font-size:.9rem;}
+
+    /* LOGIN PAGE */
+    #loginPage{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(74,144,217,.15) 0%,transparent 70%),var(--bg);}
+    .login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:var(--shadow);}
+    .login-logo{text-align:center;margin-bottom:24px;}
+    .login-logo div{font-size:3rem;margin-bottom:8px;}
+    .login-logo h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--text);}
+    .login-logo p{color:var(--mid);font-size:.88rem;margin-top:4px;}
+    .login-box label{display:block;font-size:.8rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;margin-top:18px;}
+    .login-box label:first-of-type{margin-top:0;}
+    .login-box input{width:100%;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Nunito',sans-serif;font-size:1rem;outline:none;transition:border-color .2s;}
+    .login-box input:focus{border-color:var(--sky);}
+    .btn-login{width:100%;background:var(--sky);color:white;border:none;padding:13px;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;margin-top:20px;transition:background .2s,transform .1s;}
+    .btn-login:hover{background:#3a7fc1;transform:translateY(-1px);}
+    .login-err{color:#f85149;font-size:.83rem;margin-top:10px;font-weight:600;display:none;text-align:center;}
+
+    /* DASHBOARD */
+    #dashPage{display:none;}
+
+    /* SIDEBAR */
+    .layout{display:flex;min-height:100vh;}
+    .sidebar{width:220px;background:var(--card);border-right:1px solid var(--border);padding:24px 0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;}
+    .sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--border);}
+    .sidebar-logo div{font-size:1.8rem;margin-bottom:4px;}
+    .sidebar-logo h2{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--text);}
+    .sidebar-logo p{font-size:.72rem;color:var(--mid);margin-top:2px;}
+    .sidebar-nav{padding:16px 12px;flex:1;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:var(--mid);font-weight:600;font-size:.9rem;transition:all .2s;margin-bottom:4px;}
+    .nav-item:hover{background:var(--card2);color:var(--text);}
+    .nav-item.active{background:rgba(74,144,217,.15);color:var(--sky);}
+    .nav-item .icon{font-size:1.1rem;width:20px;text-align:center;}
+    .sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+    .btn-logout-sidebar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:var(--mid);font-weight:600;font-size:.9rem;background:none;border:none;font-family:'Nunito',sans-serif;width:100%;transition:all .2s;}
+    .btn-logout-sidebar:hover{background:rgba(218,54,51,.1);color:var(--red);}
+
+    /* MAIN CONTENT */
+    .main{margin-left:220px;padding:28px;flex:1;min-height:100vh;}
+
+    /* TOP BAR */
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+    .topbar h1{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--text);}
+    .topbar p{color:var(--mid);font-size:.85rem;margin-top:2px;}
+    .notification-bell{position:relative;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;transition:border-color .2s;}
+    .notification-bell:hover{border-color:var(--sky);}
+    .notif-badge{position:absolute;top:-6px;right:-6px;background:var(--red);color:white;font-size:.65rem;font-weight:800;min-width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;display:none;}
+    .notif-badge.show{display:flex;}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px;}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:border-color .2s;}
+    .stat-card:hover{border-color:var(--sky);}
+    .stat-icon{font-size:1.6rem;margin-bottom:10px;}
+    .stat-num{font-size:2rem;font-weight:800;font-family:'Playfair Display',serif;color:var(--text);}
+    .stat-label{font-size:.78rem;color:var(--mid);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-top:4px;}
+    .stat-card.green .stat-num{color:var(--green);}
+    .stat-card.yellow .stat-num{color:var(--yellow);}
+    .stat-card.red .stat-num{color:var(--red);}
+    .stat-card.blue .stat-num{color:var(--sky);}
+
+    /* TOOLBAR */
+    .toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+    .search-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;flex:1;min-width:200px;transition:border-color .2s;}
+    .search-box:focus-within{border-color:var(--sky);}
+    .search-box input{background:none;border:none;color:var(--text);font-family:'Nunito',sans-serif;font-size:.9rem;outline:none;width:100%;}
+    .search-box input::placeholder{color:var(--mid);}
+    .date-input{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;}
+    .date-input:focus{border-color:var(--sky);}
+    .date-input::-webkit-calendar-picker-indicator{filter:invert(1);}
+
+    /* FILTER TABS */
+    .filter-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+    .tab{padding:7px 16px;border-radius:50px;border:1px solid var(--border);background:var(--card);font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;color:var(--mid);transition:all .2s;}
+    .tab:hover{border-color:var(--sky);color:var(--sky);}
+    .tab.active{background:var(--sky);border-color:var(--sky);color:white;}
+
+    /* ORDER CARDS */
+    .orders-list{display:flex;flex-direction:column;gap:12px;}
+    .order-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s;border-left:4px solid var(--border);}
+    .order-card:hover{border-color:var(--sky);}
+    .order-card.pending{border-left-color:var(--yellow);}
+    .order-card.delivered{border-left-color:var(--green);}
+    .order-card.cancelled{border-left-color:var(--red);}
+    .order-card.new-order{animation:newOrderPulse 1s ease 3;}
+    @keyframes newOrderPulse{0%,100%{border-color:var(--border)}50%{border-color:var(--yellow);box-shadow:0 0 20px rgba(227,179,65,.3);}}
+
+    .order-head{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px 10px;flex-wrap:wrap;gap:8px;}
+    .order-left{}
+    .order-id{font-size:.7rem;color:var(--mid);font-weight:700;margin-bottom:3px;font-family:monospace;}
+    .order-name{font-weight:800;font-size:1rem;color:var(--text);}
+    .order-phone{font-size:.83rem;color:var(--mid);margin-top:2px;}
+    .order-right{text-align:right;}
+    .order-time{font-size:.72rem;color:var(--mid);}
+    .order-total{font-size:1.1rem;font-weight:800;color:var(--sky);margin-top:3px;}
+    .pay-tag{display:inline-block;font-size:.72rem;background:rgba(74,144,217,.15);color:var(--sky);padding:2px 8px;border-radius:50px;font-weight:700;margin-top:3px;}
+
+    .order-body{padding:0 16px 10px;border-top:1px solid var(--border);}
+    .order-items{font-size:.85rem;color:var(--mid);padding:8px 0 4px;}
+    .order-address{font-size:.8rem;color:var(--mid);padding-bottom:4px;}
+
+    .order-footer{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(0,0,0,.2);flex-wrap:wrap;gap:8px;}
+    .status-tag{padding:4px 12px;border-radius:50px;font-size:.75rem;font-weight:700;}
+    .status-pending{background:rgba(227,179,65,.15);color:var(--yellow);}
+    .status-delivered{background:rgba(46,160,67,.15);color:var(--green);}
+    .status-cancelled{background:rgba(218,54,51,.15);color:var(--red);}
+
+    .action-btns{display:flex;gap:6px;flex-wrap:wrap;}
+    .btn-deliver{background:var(--green);color:white;border:none;padding:6px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:opacity .2s;}
+    .btn-deliver:hover{opacity:.85;}
+    .btn-cancel-order{background:rgba(218,54,51,.2);color:var(--red);border:1px solid rgba(218,54,51,.3);padding:6px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;}
+    .btn-reset-order{background:var(--card2);color:var(--mid);border:1px solid var(--border);padding:6px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;}
+    .btn-del-order{background:none;border:none;color:var(--mid);cursor:pointer;font-size:1rem;padding:6px;transition:color .2s;}
+    .btn-del-order:hover{color:var(--red);}
+
+    /* NO ORDERS */
+    .no-orders{text-align:center;padding:60px 20px;color:var(--mid);}
+    .no-orders div{font-size:3rem;margin-bottom:10px;}
+
+    /* NOTIFICATION POPUP */
+    #notifPopup{position:fixed;top:20px;right:20px;background:var(--card);border:1px solid var(--yellow);border-radius:12px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:1000;max-width:320px;display:none;animation:slideInRight .3s ease;}
+    @keyframes slideInRight{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+    .notif-title{font-weight:800;color:var(--yellow);font-size:.9rem;margin-bottom:4px;}
+    .notif-text{color:var(--text);font-size:.85rem;}
+    .notif-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--mid);cursor:pointer;font-size:1rem;}
+
+    /* RESPONSIVE */
+    @media(max-width:768px){
+      .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap;}
+      .sidebar-nav{display:flex;flex-wrap:wrap;padding:8px;}
+      .main{margin-left:0;}
+      .stats-grid{grid-template-columns:repeat(2,1fr);}
+    }
+
+    /* REFRESH BTN */
+    .btn-refresh{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--mid);cursor:pointer;font-size:.88rem;font-family:'Nunito',sans-serif;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:6px;}
+    .btn-refresh:hover{border-color:var(--sky);color:var(--sky);}
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar{width:6px;}
+    ::-webkit-scrollbar-track{background:var(--bg);}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  </style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Loading...</div>
+</div>
+
+<!-- NOTIFICATION POPUP -->
+<div id="notifPopup">
+  <button class="notif-close" onclick="closeNotif()">✕</button>
+  <div class="notif-title">🔔 Naya Order Aaya!</div>
+  <div class="notif-text" id="notifText">–</div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <div>🥛</div>
+      <h1>Pathan Dairy</h1>
+      <p>Admin Panel — Sirf Pathan ke liye</p>
+    </div>
+    <label>Username</label>
+    <input type="text" id="loginUser" placeholder="admin" onkeydown="if(event.key==='Enter')doAdminLogin()"/>
+    <label>Password</label>
+    <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()"/>
+    <button class="btn-login" onclick="doAdminLogin()">Login →</button>
+    <div class="login-err" id="loginErr">❌ Username ya password galat hai.</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashPage">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div>🥛</div>
+        <h2>Pathan Dairy</h2>
+        <p>Admin Panel</p>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-item active" onclick="switchTab('orders',this)">
+          <span class="icon">📋</span> Orders
+        </div>
+        <div class="nav-item" onclick="switchTab('stats',this)">
+          <span class="icon">📊</span> Statistics
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="btn-logout-sidebar" onclick="doLogout()">
+          <span>🚪</span> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- ORDERS TAB -->
+      <div id="tab-orders">
+        <div class="topbar">
+          <div>
+            <h1>📋 Orders</h1>
+            <p id="lastRefresh">Last updated: –</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div class="notification-bell" onclick="toggleNotifications()">
+              🔔 <span class="notif-badge" id="notifBadge">0</span>
+            </div>
+            <button class="btn-refresh" onclick="loadOrders()">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-icon">📦</div>
+            <div class="stat-num" id="statTotal">0</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-num" id="statPending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">✅</div>
+            <div class="stat-num" id="statDelivered">0</div>
+            <div class="stat-label">Delivered</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">💰</div>
+            <div class="stat-num" id="statRevenue">₹0</div>
+            <div class="stat-label">Revenue</div>
+          </div>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="searchInput" placeholder="Naam ya phone se search karo..." oninput="applyFilters()"/>
+          </div>
+          <input type="date" class="date-input" id="dateFilter" onchange="applyFilters()" title="Date filter"/>
+          <button class="btn-refresh" onclick="clearFilters()">✕ Clear</button>
+        </div>
+
+        <!-- FILTER TABS -->
+        <div class="filter-tabs">
+          <button class="tab active" onclick="setFilter('all',this)">All</button>
+          <button class="tab" onclick="setFilter('pending',this)">⏳ Pending</button>
+          <button class="tab" onclick="setFilter('delivered',this)">✅ Delivered</button>
+          <button class="tab" onclick="setFilter('cancelled',this)">❌ Cancelled</button>
+        </div>
+
+        <div class="orders-list" id="ordersList"></div>
+      </div>
+
+      <!-- STATS TAB -->
+      <div id="tab-stats" style="display:none;">
+        <div class="topbar">
+          <div><h1>📊 Statistics</h1><p>Orders ka breakdown</p></div>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+          <div class="stat-card blue">
+            <div class="stat-icon">📦</div>
+            <div class="stat-num" id="s-total">0</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-num" id="s-pending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">✅</div>
+            <div class="stat-num" id="s-delivered">0</div>
+            <div class="stat-label">Delivered</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-icon">❌</div>
+            <div class="stat-num" id="s-cancelled">0</div>
+            <div class="stat-label">Cancelled</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">💰</div>
+            <div class="stat-num" id="s-revenue">₹0</div>
+            <div class="stat-label">Total Revenue</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon">💵</div>
+            <div class="stat-num" id="s-cod">0</div>
+            <div class="stat-label">Pay on Delivery</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon">📱</div>
+            <div class="stat-num" id="s-online">0</div>
+            <div class="stat-label">Online Payment</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-icon">🛒</div>
+            <div class="stat-num" id="s-avg">₹0</div>
+            <div class="stat-label">Avg Order Value</div>
+          </div>
+        </div>
+        <div style="margin-top:24px;">
+          <h2 style="font-family:'Playfair Display',serif;margin-bottom:16px;color:var(--text);">🥛 Product Popularity</h2>
+          <div id="productStats" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ══ FIREBASE INIT ══ */
+var firebaseConfig = {
+  apiKey: "AIzaSyAhyNSJ0HVKnxKzckhZwShXGMCmLr6JDuM",
+  authDomain: "pathan-dairy.firebaseapp.com",
+  projectId: "pathan-dairy",
+  storageBucket: "pathan-dairy.firebasestorage.app",
+  messagingSenderId: "919060730878",
+  appId: "1:919060730878:web:219634f35256bc6fff66af"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+/* ══ ADMIN CREDENTIALS ══ */
+var ADMIN_USER = 'pathan';
+var ADMIN_PASS = 'pathan123';
+
+/* ══ STATE ══ */
+var allOrders = [];
+var currentFilter = 'all';
+var currentSearch = '';
+var currentDate = '';
+var notifEnabled = true;
+var lastOrderCount = 0;
+var autoRefreshTimer = null;
+var isLoggedIn = false;
+
+/* ══ LOADING ══ */
+function showLoading(t='Loading...'){
+  document.getElementById('loadingText').textContent=t;
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading(){
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+/* ══ LOGIN ══ */
+function doAdminLogin(){
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if(user === ADMIN_USER && pass === ADMIN_PASS){
+    document.getElementById('loginErr').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('dashPage').style.display = 'block';
+    isLoggedIn = true;
+    loadOrders();
+    startAutoRefresh();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function doLogout(){
+  isLoggedIn = false;
+  clearInterval(autoRefreshTimer);
+  document.getElementById('dashPage').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  allOrders = [];
+}
+
+/* ══ TABS ══ */
+function switchTab(tab, el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-orders').style.display = tab==='orders' ? 'block' : 'none';
+  document.getElementById('tab-stats').style.display  = tab==='stats'  ? 'block' : 'none';
+  if(tab==='stats') renderStats();
+}
+
+/* ══ LOAD ORDERS ══ */
+async function loadOrders(){
+  showLoading('Orders load ho rahe hain...');
+  try{
+    const snap = await db.collection('orders').orderBy('timestamp','desc').get();
+    const newOrders = snap.docs.map(d => d.data());
+
+    // Check for new orders — notification
+    if(isLoggedIn && lastOrderCount > 0 && newOrders.length > lastOrderCount){
+      const newCount = newOrders.length - lastOrderCount;
+      const newest = newOrders[0];
+      showNotification(`${newest.name} ne order kiya! ₹${newest.total} — ${newest.items.map(i=>i.name).join(', ')}`);
+    }
+    lastOrderCount = newOrders.length;
+    allOrders = newOrders;
+
+    updateStats();
+    applyFilters();
+    document.getElementById('lastRefresh').textContent = 'Last updated: ' + new Date().toLocaleTimeString('en-IN');
+    hideLoading();
+  } catch(e){
+    hideLoading();
+    alert('Error loading orders: ' + e.message);
+  }
+}
+
+/* ══ AUTO REFRESH every 30 seconds ══ */
+function startAutoRefresh(){
+  autoRefreshTimer = setInterval(()=>{
+    if(isLoggedIn) loadOrders();
+  }, 30000);
+}
+
+/* ══ STATS ══ */
+function updateStats(){
+  const pending   = allOrders.filter(o=>o.status==='pending').length;
+  const delivered = allOrders.filter(o=>o.status==='delivered').length;
+  const revenue   = allOrders.filter(o=>o.status==='delivered').reduce((s,o)=>s+o.total,0);
+
+  document.getElementById('statTotal').textContent     = allOrders.length;
+  document.getElementById('statPending').textContent   = pending;
+  document.getElementById('statDelivered').textContent = delivered;
+  document.getElementById('statRevenue').textContent   = '₹'+revenue;
+
+  // Notification badge
+  if(pending > 0){
+    document.getElementById('notifBadge').textContent = pending;
+    document.getElementById('notifBadge').classList.add('show');
+  } else {
+    document.getElementById('notifBadge').classList.remove('show');
+  }
+}
+
+function renderStats(){
+  const pending   = allOrders.filter(o=>o.status==='pending').length;
+  const delivered = allOrders.filter(o=>o.status==='delivered').length;
+  const cancelled = allOrders.filter(o=>o.status==='cancelled').length;
+  const revenue   = allOrders.filter(o=>o.status==='delivered').reduce((s,o)=>s+o.total,0);
+  const cod       = allOrders.filter(o=>o.payment==='Pay on Delivery').length;
+  const online    = allOrders.filter(o=>o.payment==='Online (UPI)').length;
+  const avg       = allOrders.length ? Math.round(revenue / (delivered||1)) : 0;
+
+  document.getElementById('s-total').textContent     = allOrders.length;
+  document.getElementById('s-pending').textContent   = pending;
+  document.getElementById('s-delivered').textContent = delivered;
+  document.getElementById('s-cancelled').textContent = cancelled;
+  document.getElementById('s-revenue').textContent   = '₹'+revenue;
+  document.getElementById('s-cod').textContent       = cod;
+  document.getElementById('s-online').textContent    = online;
+  document.getElementById('s-avg').textContent       = '₹'+avg;
+
+  // Product popularity
+  const productCount = {};
+  allOrders.forEach(o=>{
+    (o.items||[]).forEach(item=>{
+      productCount[item.name] = (productCount[item.name]||0) + 1;
+    });
+  });
+  const sorted = Object.entries(productCount).sort((a,b)=>b[1]-a[1]);
+  const max = sorted[0]?.[1] || 1;
+  document.getElementById('productStats').innerHTML = sorted.map(([name,count])=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-weight:700;">${name}</span>
+        <span style="color:var(--sky);font-weight:700;">${count} orders</span>
+      </div>
+      <div style="background:var(--card2);border-radius:50px;height:6px;overflow:hidden;">
+        <div style="background:var(--sky);height:100%;width:${Math.round(count/max*100)}%;border-radius:50px;transition:width .5s;"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ══ FILTERS ══ */
+function setFilter(filter, el){
+  currentFilter = filter;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters(){
+  currentSearch = document.getElementById('searchInput').value.toLowerCase().trim();
+  currentDate   = document.getElementById('dateFilter').value;
+
+  let filtered = allOrders;
+
+  // Status filter
+  if(currentFilter !== 'all') filtered = filtered.filter(o=>o.status===currentFilter);
+
+  // Search filter
+  if(currentSearch){
+    filtered = filtered.filter(o=>
+      o.name.toLowerCase().includes(currentSearch) ||
+      (o.phone && o.phone.includes(currentSearch))
+    );
+  }
+
+  // Date filter
+  if(currentDate){
+    filtered = filtered.filter(o=>{
+      if(!o.time) return false;
+      // o.time format: "2/6/2026, 1:30:00 am"
+      const orderDate = new Date(o.time).toISOString().slice(0,10);
+      return orderDate === currentDate;
+    });
+  }
+
+  renderOrders(filtered);
+}
+
+function clearFilters(){
+  document.getElementById('searchInput').value = '';
+  document.getElementById('dateFilter').value = '';
+  currentSearch = '';
+  currentDate = '';
+  setFilter('all', document.querySelector('.tab'));
+}
+
+/* ══ RENDER ORDERS ══ */
+function renderOrders(orders){
+  const list = document.getElementById('ordersList');
+  if(!orders.length){
+    list.innerHTML = '<div class="no-orders"><div>📭</div><p>Koi order nahi mila.</p></div>';
+    return;
+  }
+  list.innerHTML = orders.map(o=>`
+    <div class="order-card ${o.status}" id="ocard-${o.id}">
+      <div class="order-head">
+        <div class="order-left">
+          <div class="order-id">${o.id}</div>
+          <div class="order-name">👤 ${o.name}</div>
+          <div class="order-phone">📞 ${o.phone||'–'}</div>
+        </div>
+        <div class="order-right">
+          <div class="order-time">🕐 ${o.time||'–'}</div>
+          <div class="order-total">₹${o.total}</div>
+          <span class="pay-tag">${o.payment}</span>
+        </div>
+      </div>
+      <div class="order-body">
+        <div class="order-items">🛒 ${(o.items||[]).map(i=>`${i.emoji||''}${i.name} – ${i.qty}${i.unit}`).join(' &nbsp;·&nbsp; ')}</div>
+        <div class="order-address">📍 ${o.address||'–'}</div>
+      </div>
+      <div class="order-footer">
+        <span class="status-tag status-${o.status}">
+          ${o.status==='pending'?'⏳ Pending':o.status==='delivered'?'✅ Delivered':'❌ Cancelled'}
+        </span>
+        <div class="action-btns">
+          ${o.status==='pending'?`
+            <button class="btn-deliver" onclick="updateStatus('${o.id}','delivered')">✅ Delivered</button>
+            <button class="btn-cancel-order" onclick="updateStatus('${o.id}','cancelled')">❌ Cancel</button>
+          `:`
+            <button class="btn-reset-order" onclick="updateStatus('${o.id}','pending')">↩ Reset</button>
+          `}
+          <button class="btn-del-order" onclick="deleteOrder('${o.id}')" title="Delete">🗑</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ══ UPDATE STATUS ══ */
+async function updateStatus(id, status){
+  showLoading('Update ho raha hai...');
+  try{
+    await db.collection('orders').doc(id).update({status});
+    hideLoading();
+    loadOrders();
+  }catch(e){hideLoading();alert('Error: '+e.message);}
+}
+
+async function deleteOrder(id){
+  if(!confirm('Is order ko permanently delete karo?')) return;
+  showLoading('Delete ho raha hai...');
+  try{
+    await db.collection('orders').doc(id).delete();
+    hideLoading();
+    loadOrders();
+  }catch(e){hideLoading();alert('Error: '+e.message);}
+}
+
+/* ══ NOTIFICATIONS ══ */
+function showNotification(text){
+  document.getElementById('notifText').textContent = text;
+  document.getElementById('notifPopup').style.display = 'block';
+  setTimeout(()=>closeNotif(), 8000);
+}
+function closeNotif(){
+  document.getElementById('notifPopup').style.display = 'none';
+}
+function toggleNotifications(){
+  notifEnabled = !notifEnabled;
+}
+</script>
+</body>
+</html>
