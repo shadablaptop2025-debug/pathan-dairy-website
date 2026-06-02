@@ -147,6 +147,11 @@
     .notif-text{color:var(--text);font-size:.85rem;}
     .notif-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--mid);cursor:pointer;font-size:1rem;}
 
+    /* EYE BUTTON */
+    .pass-wrap{position:relative;}
+    .pass-wrap input{padding-right:44px!important;}
+    .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0;line-height:1;}
+
     /* RESPONSIVE */
     @media(max-width:768px){
       .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap;}
@@ -191,7 +196,10 @@
     <label>Username</label>
     <input type="text" id="loginUser" placeholder="admin" onkeydown="if(event.key==='Enter')doAdminLogin()"/>
     <label>Password</label>
+    <div class="pass-wrap">
     <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()"/>
+    <button class="eye-btn" type="button" onclick="togglePass('loginPass',this)">👁️</button>
+    </div>
     <button class="btn-login" onclick="doAdminLogin()">Login →</button>
     <div class="login-err" id="loginErr">❌ Username ya password galat hai.</div>
   </div>
@@ -348,6 +356,18 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script>
+/* ══ TOGGLE PASSWORD ══ */
+function togglePass(inputId, btn){
+  var input = document.getElementById(inputId);
+  if(input.type === 'password'){
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
 /* ══ FIREBASE INIT ══ */
 var firebaseConfig = {
   apiKey: "AIzaSyAhyNSJ0HVKnxKzckhZwShXGMCmLr6JDuM",
